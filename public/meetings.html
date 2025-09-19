@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Meetings Profile</title>
+  <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    /* [Same styling as before — omitted for brevity] */
+  </style>
+</head>
+<body>
+  <div class="header"><h1>MENTOR–MENTEE PORTAL</h1></div>
+  <div class="subheader">MEETINGS PROFILE</div>
+  <div class="info-text">Track your scheduled, ongoing, and completed mentor-mentee meetings.</div>
+
+  <div class="container">
+    <div class="left-panel">
+      <div class="section-box">
+        <h3>Upcoming Meetings</h3>
+        <div id="upcoming-meetings"></div>
+        <div class="search-bar">
+          <input type="text" placeholder="Search by name" oninput="filterMeetings(this.value)" />
+        </div>
+      </div>
+
+      <div class="history-section">
+        <h3>Meeting History</h3>
+        <div id="meeting-history"></div>
+      </div>
+    </div>
+
+    <div class="right-panel">
+      <button class="schedule-button" onclick="openScheduleForm()">+ Schedule Meeting</button>
+      <div class="calendar">
+        <label for="datepicker">Select date</label><br />
+        <input type="date" id="datepicker" />
+      </div>
+
+      <div id="scheduleForm">
+        <h3>Schedule New Meeting</h3>
+        <input type="text" id="menteeName" placeholder="Mentee Name" />
+        <input type="text" id="meetingTopic" placeholder="Topic" />
+        <input type="date" id="meetingDate" />
+        <input type="text" id="meetingLink" placeholder="Meeting Link (Zoom/Meet)" />
+        <button onclick="submitMeeting()">Submit</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const userName = localStorage.getItem("userName");
+    const userRole = localStorage.getItem("userRole");
+
+    if (!userName || !userRole) {
+      alert("User not logged in. Redirecting...");
+      window.location.href = "login_mentor.html"; // or login_mentee.html
+    }
+
+    async function loadMeetings() {
+      const res = await fetch(`/api/meetings?role=${userRole}&name=${encodeURIComponent(userName)}`);
+      const meetings = await res.json();
+
+      const upcomingContainer = document.getElementById("upcoming-meetings");
+      const historyContainer = document.getElementById("meeting-history");
+
+      upcomingContainer.innerHTML = "";
+      historyContainer.innerHTML = "";
+
+      meetings.forEach(meeting => {
+        const row = document.createElement("div");
+        row.className = "meeting-row";
+        row.innerHTML = `
+          <div class="meeting-info">
+            <img src="https://i.pravatar.cc/40?u=${meeting.mentor}" />
+            <div><strong>${new Date(meeting.date).toDateString()}</strong><br>${userRole === "mentor" ? meeting.mentee : meeting.mentor}</div>
+          </div>
+          <div class="meeting-topic">${meeting.topic}</div>
+          <div class="meeting-actions">
+            ${meeting.status === "upcoming" ? `<button onclick="window.open('${meeting.link}')">Join</button>` : ""}
+            ${userRole === "mentor" ? `<button onclick="alert('Reschedule feature coming soon')">Reschedule</button>` : ""}
+          </div>
+        `;
+        if (meeting.status === "upcoming") {
+          upcomingContainer.appendChild(row);
+        } else {
+          const card = document.createElement("div");
+          card.className = "history-card";
+          card.innerHTML = `
+            <div class="history-date">${new Date(meeting.date).toDateString()}<span>${meeting.status}</span></div>
+            <div class="history-detail">
+              <div class="history-detail-title">${meeting.topic}</div>
+              ${userRole === "mentor" ? `With ${meeting.mentee}` : `With ${meeting.mentor}`}
+            </div>
+            <button class="view-button" onclick="alert('Viewing details...')">View Details</button>
+          `;
+          historyContainer.appendChild(card);
+        }
+      });
+    }
+
+    function filterMeetings(query) {
+      document.querySelectorAll('.meeting-row').forEach(row => {
+        const name = row.querySelector('.meeting-info div').textContent.toLowerCase();
+        row.style.display = name.includes(query.toLowerCase()) ? 'flex' : 'none';
+      });
+    }
+
+    function openScheduleForm() {
+      if (userRole !== "mentor") return alert("Only mentors can schedule meetings");
+      document.getElementById("scheduleForm").style.display = "block";
+    }
+
+    async function submitMeeting() {
+      const mentee = document.getElementById("menteeName").value;
+      const topic = document.getElementById("meetingTopic").value;
+      const date = document.getElementById("meetingDate").value;
+      const link = document.getElementById("meetingLink").value;
+
+      const res = await fetch("/api/meetings", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mentor: userName, mentee, topic, date, link })
+      });
+
+      const data = await res.json();
+      alert(data.message);
+      if (data.success) {
+        document.getElementById("scheduleForm").style.display = "none";
+        loadMeetings();
+      }
+    }
+
+    loadMeetings();
+  </script>
+</body>
+</html>

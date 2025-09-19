@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mentor-Mentee Portal Dashboard</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    /* General Styles */
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #f0f8ff;
+      margin: 0;
+      color: #333;
+      opacity: 0;
+      animation: fadeInPage 1.2s ease-in-out forwards;
+      scroll-behavior: smooth;
+    }
+
+    @keyframes fadeInPage {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Header */
+    .title {
+       background-color: #e6e6fa;
+      color: #00008b;
+      font-family: 'Playfair Display', serif;
+      font-size: 2.4em;
+      font-weight: 700;
+      padding: 1.5rem;
+      text-align: center;
+      width: 100%;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      letter-spacing: 1px;
+      transition: color 0.4s ease, text-shadow 0.4s ease;
+    }
+.title:hover {
+      color: #483d8b;
+      text-shadow: 0 0 10px rgba(72, 61, 139, 0.6),
+                   0 0 20px rgba(72, 61, 139, 0.4);
+      cursor: pointer;
+    }
+    /* Navbar */
+    /* Navbar */
+nav {
+    display: flex;
+    justify-content: space-around; /* center the links */
+    gap: 20px; /* spacing between links */
+    padding: 12px 0px;
+    flex-wrap: wrap;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+}
+
+nav a {
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+    padding: 6px 10px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+nav a:hover {
+    color: #fff;
+    background-color: #483d8b;
+    box-shadow: 0 4px 10px rgba(72,61,139,0.3);
+}
+
+
+
+    /* Main Content Layout */
+    .main-content {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 30px;
+      padding: 30px;
+      max-width: 1300px;
+      margin: 0 auto;
+    }
+
+    .left, .middle, .right {
+      flex: 1;
+      min-width: 320px;
+      max-width: 380px;
+      background: linear-gradient(135deg, #e6e6fa, #f0f8ff);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.12);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .left:hover, .middle:hover, .right:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.18);
+    }
+
+    /* Profile */
+    .profile-card {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .profile-card img {
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      border: 3px solid #ccc;
+      object-fit: cover;
+    }
+
+    .profile-card h2 {
+      margin-top: 12px;
+      color: #000;
+      font-size: 1.3em;
+      font-weight: 600;
+    }
+
+    /* Calendar Styles */
+    .calendar {
+      margin-bottom: 20px;
+    }
+
+    .calendar h4 {
+      text-align: center;
+      font-family: 'Playfair Display', serif;
+      color: #00008b;
+      margin-bottom: 10px;
+      font-size: 1.2em;
+    }
+
+    .calendar table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .calendar th {
+      color: #0000ff;
+      font-weight: 600;
+      padding: 6px 0;
+    }
+
+    .calendar td {
+      width: 14.28%;
+      height: 40px;
+      text-align: center;
+      vertical-align: middle;
+      border-radius: 6px;
+      transition: background 0.3s;
+      cursor: pointer;
+    }
+
+    .calendar td:hover {
+      background-color: #e6e6fa;
+    }
+
+    .today {
+      background-color: #483d8b;
+      color: white;
+      font-weight: 700;
+    }
+
+    .empty {
+      background-color: transparent;
+      cursor: default;
+    }
+
+    /* Meetings */
+    .meetings {
+      background-color: #483d8b;
+      color: white;
+      padding: 15px;
+      border-radius: 8px;
+      font-size: 0.95em;
+      line-height: 1.6;
+    }
+
+    /* Info Grid */
+    .info-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      font-size: 0.95em;
+      margin-bottom: 25px;
+    }
+
+    .info-item {
+      font-weight: 600;
+      color: #00008b;
+    }
+
+    /* Section Titles */
+    .section-title {
+      text-align: center;
+      font-weight: 700;
+      font-size: 1.2em;
+      margin: 20px 0 15px;
+      color: #333;
+      font-family: 'Playfair Display', serif;
+    }
+
+    /* Chart Containers */
+    .chart-card {
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      background: #fff;
+      padding: 15px;
+    }
+
+    .chart-card canvas {
+      width: 100% !important;
+      height: 250px !important;
+    }
+
+    /* Circle Charts */
+    .subcharts {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+      margin-top: 15px;
+    }
+
+    .circle-chart {
+      width: 200px;
+      height: 200px;
+      position: relative;
+      border-radius: 50%;
+      background: conic-gradient(#e0e0e0 0 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Poppins', sans-serif;
+      font-weight: 600;
+      color: #333;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+.meeting-day {
+  background-color: #ffb347; /* Orange-ish highlight */
+  color: #fff;
+  font-weight: 700;
+}
+
+    .circle-chart span {
+      font-size: 1.4em;
+      font-weight: 700;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .circle-chart::before {
+      content: attr(data-label);
+      position: absolute;
+      bottom: -25px;
+      width: 100%;
+      text-align: center;
+      font-size: 0.9em;
+      color: #333;
+    }
+
+    @media(max-width: 1200px){
+      .main-content { flex-direction: column; align-items: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Title -->
+  <div class="title">MENTOR–MENTEE PORTAL</div>
+
+  <!-- Navbar -->
+ <!-- Navbar -->
+<nav>
+    <a href="mentee.html">👤 View Mentee Profile</a>
+    <a href="meetings.html">📅 Schedule/View Meetings</a>
+    <a href="progress.html">✓ View Progress</a>
+    <a href="feedback.html">💬 Feedback</a>
+    <a href="index.html">Logout</a>
+</nav>
+
+
+  <!-- Main Content -->
+  <div class="main-content">
+
+    <!-- Left Panel -->
+    <div class="left">
+      <div class="profile-card">
+        <img id="profileImg" src="https://via.placeholder.com/130" alt="Profile Image" />
+        <h2 id="profileName">—</h2>
+      </div>
+
+      <!-- Dynamic Calendar -->
+      <div class="calendar">
+        <h4>September 2025</h4>
+        <table id="calendarTable">
+          <thead>
+            <tr>
+              <th>Sun</th>
+              <th>Mon</th>
+              <th>Tue</th>
+              <th>Wed</th>
+              <th>Thu</th>
+              <th>Fri</th>
+              <th>Sat</th>
+            </tr>
+          </thead>
+          <tbody id="calendarBody"></tbody>
+        </table>
+      </div>
+
+      <div class="meetings">
+        <p><strong>September 15:</strong> Career Planning<br>Dr. Julia Winton<br>09:00–11:00 AM</p>
+        <p><strong>September 20:</strong> Resume Review<br>Dr. Teena Smith<br>11:00–1:00 PM</p>
+        <p><strong>September 22:</strong> Mock Interview<br>Dr. San Andreas<br>09:00–12:00 PM</p>
+      </div>
+    </div>
+
+    <!-- Middle Panel -->
+    <div class="middle">
+      <div class="info-grid">
+        <div><span class="info-item">ROLL NUMBER:</span> <span id="rollNumber">—</span></div>
+        <div><span class="info-item">BLOOD GROUP:</span> <span id="bloodGroup">—</span></div>
+        <div><span class="info-item">CLASS:</span> <span id="className">—</span></div>
+        <div><span class="info-item">AGE:</span> <span id="age">—</span></div>
+      </div>
+
+      <div class="section-title">Progress Over The Years</div>
+      <div class="chart-card">
+        <canvas id="progressChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Right Panel -->
+    <div class="right">
+      <div class="section-title">Your Activity</div>
+      <div class="chart-card">
+        <canvas id="activityChart"></canvas>
+      </div>
+
+      <div class="section-title">Attendance & Communication</div>
+      <div class="subcharts">
+        <div id="attendanceChart" class="circle-chart" data-percentage="0" data-label="ATTENDANCE"></div>
+        <div id="communicationChart" class="circle-chart" data-percentage="0" data-label="COMMUNICATION"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- JS Scripts -->
+  <script>
+    const userEmail = localStorage.getItem('userEmail');
+    if(!userEmail){ window.location.href = 'login_mentee.html'; }
+
+    // Calendar
+    const month = 8; // September (0-indexed)
+    const year = 2025;
+    const calendarBody = document.getElementById('calendarBody');
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    let date = 1;
+
+    for(let i = 0; i < 6; i++) {
+      const row = document.createElement('tr');
+      for(let j = 0; j < 7; j++) {
+        const cell = document.createElement('td');
+        if(i === 0 && j < firstDay || date > daysInMonth) {
+          cell.classList.add('empty');
+        } else {
+          cell.textContent = date;
+          date++;
+        }
+        row.appendChild(cell);
+      }
+      calendarBody.appendChild(row);
+    }
+
+    // Highlight today
+    const today = new Date();
+    const cells = document.querySelectorAll('#calendarBody td');
+    cells.forEach(cell => {
+      if (+cell.textContent === today.getDate() && !cell.classList.contains('empty')) {
+        cell.classList.add('today');
+      }
+    });
+const meetingDates = [15, 20, 22]; // Dates from meetings section
+cells.forEach(cell => {
+  const cellDate = +cell.textContent;
+  if (meetingDates.includes(cellDate) && !cell.classList.contains('empty')) {
+    cell.classList.add('meeting-day');
+  }
+});
+
+    // Helper to paint circle chart
+    function paintCircle(el, percentage, color){
+      const angle = (percentage / 100) * 360;
+      el.innerHTML = `<span>${percentage}%</span>`;
+      el.style.background = `conic-gradient(${color} 0 ${angle}deg, #e0e0e0 ${angle}deg 360deg)`;
+    }
+
+    async function loadUserAndProgress(){
+      try{
+        // Load user
+        const ures = await fetch(`/api/user/${encodeURIComponent(userEmail)}`);
+        const ujson = await ures.json();
+        if(ujson.success){
+          const u = ujson.user;
+          document.getElementById('profileName').textContent = (u.name || '').toUpperCase();
+          document.getElementById('profileImg').src = u.profileImage || 'https://via.placeholder.com/130';
+          document.getElementById('rollNumber').textContent = u.rollNumber || '—';
+          document.getElementById('bloodGroup').textContent = u.bloodGroup || '—';
+          document.getElementById('className').textContent = u.class || '—';
+          document.getElementById('age').textContent = u.age || '—';
+        }
+
+        // Load progress
+        const pres = await fetch(`/api/progress/${encodeURIComponent(userEmail)}`);
+        const pjson = await pres.json();
+        if(!pjson.success) return;
+        const p = pjson.progress;
+
+        // Attendance & communication
+        paintCircle(document.getElementById('attendanceChart'), p.attendanceRate || 0, '#63c2bf');
+        paintCircle(document.getElementById('communicationChart'), p.communicationRate || 0, '#4f5d9b');
+
+        // Progress over years
+        const ctxProgress = document.getElementById('progressChart').getContext('2d');
+        const years = (p.yearlyProgress||[]).map(x=>x.year);
+        const scores = (p.yearlyProgress||[]).map(x=>x.overallScore);
+        new Chart(ctxProgress, {
+          type: 'bar',
+          data: { labels: years, datasets: [{ label: 'Score', data: scores, backgroundColor: '#6b5b95' }] },
+          options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, max: 100 } } }
+        });
+
+        // Activity chart
+        const ctxActivity = document.getElementById('activityChart').getContext('2d');
+        const months = (p.monthlyActivity||[]).map(x=>x.month);
+        const activity = (p.monthlyActivity||[]).map(x=>x.score);
+        new Chart(ctxActivity, {
+          type: 'line',
+          data: { labels: months, datasets: [{ label: 'Activity', data: activity, borderColor: '#4f5d9b', backgroundColor: 'rgba(79,93,155,0.2)', fill: true, tension: 0.3, pointBackgroundColor: '#4f5d9b' }] },
+          options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, max: 100 } } }
+        });
+      }catch(err){ console.error(err); }
+    }
+
+    loadUserAndProgress();
+  </script>
+
+</body>
+</html>

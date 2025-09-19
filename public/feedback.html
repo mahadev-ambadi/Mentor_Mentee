@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Feedback</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #1e1e1e;
+      color: #000;
+    }
+
+    .container {
+      background-color: #fff;
+      width: 80%;
+      margin: 30px auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.5);
+    }
+
+    .header {
+      background-color: #d6edf5;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .header h1 {
+      margin: 0;
+      color: #0033ff;
+    }
+
+    .sub-header {
+      background-color: #d3d3d3;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 30px;
+    }
+
+    .sub-header h2 {
+      color: purple;
+      text-shadow: 1px 1px #000;
+      margin: 0;
+    }
+
+    .logout {
+      font-size: 0.9rem;
+    }
+
+    .content {
+      padding: 40px;
+      background-image: url('https://i.ibb.co/pRdF6Y3/mentor-mentee-bg.png'); /* Optional background */
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: 60%;
+      background-blend-mode: lighten;
+      min-height: 500px;
+    }
+
+    .form-group {
+      margin-bottom: 30px;
+      display: flex;
+      align-items: center;
+    }
+
+    .form-group label {
+      width: 100px;
+      font-weight: bold;
+      text-transform: uppercase;
+      margin-right: 20px;
+    }
+
+    .stars {
+      font-size: 24px;
+      color: gray;
+      cursor: pointer;
+    }
+
+    .textarea-group textarea {
+      width: 60%;
+      padding: 10px;
+      font-size: 1rem;
+      resize: none;
+      background-color: #eee;
+      border: none;
+    }
+
+    .submit-btn {
+      margin-left: 120px;
+      margin-top: 20px;
+    }
+
+    .submit-btn button {
+      background-color: #222;
+      color: white;
+      padding: 5px 15px;
+      border: none;
+      cursor: pointer;
+    }
+
+    .submit-btn button:hover {
+      background-color: #444;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>MENTOR–MENTEE PORTAL</h1>
+    </div>
+    <div class="sub-header">
+      <h2>FEEDBACK PAGE</h2>
+      <span class="logout">Logout</span>
+    </div>
+
+    <div class="content">
+      <form id="feedbackForm">
+        <div class="form-group">
+          <label>Mentor</label>
+          <div class="stars" data-target="mentor_rating" aria-label="Rate mentor">
+            <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Website</label>
+          <div class="stars" data-target="website_rating" aria-label="Rate website">
+            <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Overall</label>
+          <div class="stars" data-target="overall_rating" aria-label="Rate overall">
+            <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+          </div>
+        </div>
+
+        <div class="form-group textarea-group">
+          <label>Feedback</label>
+          <textarea id="feedback_text" rows="2" placeholder="Share Your Thoughts"></textarea>
+        </div>
+
+        <div class="submit-btn">
+          <button type="submit">Submit</button>
+        </div>
+      </form>
+    </div>
+    <script>
+      // Star rating interaction
+      const ratings = { mentor_rating: 0, website_rating: 0, overall_rating: 0 };
+      document.querySelectorAll('.stars').forEach(container => {
+        const key = container.getAttribute('data-target');
+        const stars = Array.from(container.querySelectorAll('span'));
+        const paint = (n) => {
+          stars.forEach((s, i) => s.style.color = i < n ? '#f5b301' : 'gray');
+        };
+        stars.forEach((star, index) => {
+          star.addEventListener('mouseenter', () => paint(index+1));
+          star.addEventListener('mouseleave', () => paint(ratings[key]));
+          star.addEventListener('click', () => { ratings[key] = index+1; paint(ratings[key]); });
+        });
+        paint(0);
+      });
+
+      // Submit handler
+      document.getElementById('feedbackForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const payload = {
+          mentor_rating: ratings.mentor_rating,
+          website_rating: ratings.website_rating,
+          overall_rating: ratings.overall_rating,
+          feedback_text: document.getElementById('feedback_text').value
+        };
+        try{
+          const res = await fetch('/api/feedback', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          const data = await res.json();
+          if(data.success){
+            window.location.href = 'feedbackgot.html';
+          } else {
+            alert(data.message || 'Submission failed');
+          }
+        }catch(err){
+          alert('Error submitting feedback');
+          console.error(err);
+        }
+      });
+    </script>
+  </div>
+</body>
+</html>

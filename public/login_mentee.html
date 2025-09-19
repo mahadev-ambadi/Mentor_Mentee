@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mentee Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #e6e6fa 0%, #f0f8ff 100%);
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      color: #333;
+    }
+    
+    header.header {
+      background-color: #e6e6fa;
+      color: #00008b;
+      font-family: 'Playfair Display', serif;
+      font-size: 2.4em;
+      font-weight: 700;
+      padding: 1.5rem;
+      text-align: center;
+      width: 100%;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      letter-spacing: 1px;
+    }
+    
+    .navbar {
+      background-color: #f8f8ff;
+      width: 100%;
+      padding: 1rem;
+      text-align: center;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .navbar a {
+      color: #333;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 1.1em;
+    }
+    
+    .navbar a:hover {
+      color: #00008b;
+    }
+    
+    .login-container {
+      background: rgba(255, 255, 255, 0.95);
+      padding: 3rem 2.5rem;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+      text-align: center;
+      max-width: 450px;
+      width: 90%;
+      margin: 4rem auto;
+      backdrop-filter: blur(10px);
+    }
+    
+    .login-container h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2em;
+      font-weight: 700;
+      margin-bottom: 2rem;
+      color: #00008b;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+    
+    .input-group {
+      margin-bottom: 1.5rem;
+      text-align: left;
+    }
+    
+    .input-group label {
+      display: flex;
+      align-items: center;
+      margin-bottom: 0.8rem;
+      font-weight: 600;
+      color: #483d8b;
+      font-size: 1.1em;
+    }
+    
+    .input-group label::before {
+      content: "👤";
+      margin-right: 8px;
+      font-size: 1.2em;
+    }
+    
+    .input-group label[for="loginPassword"]::before {
+      content: "🔒";
+    }
+    
+    .input-group input {
+      width: 100%;
+      padding: 15px 12px;
+      border: 2px solid #e6e6fa;
+      border-radius: 10px;
+      font-size: 1.1em;
+      font-family: 'Poppins', sans-serif;
+      transition: border-color 0.3s ease;
+      box-sizing: border-box;
+    }
+    
+    .input-group input:focus {
+      outline: none;
+      border-color: #00008b;
+      box-shadow: 0 0 10px rgba(0, 0, 139, 0.2);
+    }
+    
+    .input-group input::placeholder {
+      color: #999;
+      font-style: italic;
+    }
+    
+    .login-button {
+      background: linear-gradient(135deg, #00008b, #483d8b);
+      color: white;
+      padding: 16px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 1.2em;
+      font-weight: 600;
+      width: 100%;
+      margin-top: 1.5rem;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .login-button:hover {
+      background: linear-gradient(135deg, #483d8b, #6a5acd);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0, 0, 139, 0.3);
+    }
+    
+    .forgot-password {
+      margin-top: 1rem;
+      text-align: center;
+    }
+    
+    .forgot-password a {
+      color: #00008b;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    
+    .forgot-password a:hover {
+      text-decoration: underline;
+    }
+    
+    @media (max-width: 768px) {
+      .login-container {
+        margin: 2rem auto;
+        padding: 2rem 1.5rem;
+      }
+      
+      header.header {
+        font-size: 1.8em;
+        padding: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<header class="header">MENTOR-MENTEE PORTAL</header>
+
+<nav class="navbar">
+  <a href="index.html">Home</a>
+</nav>
+
+<main class="login-container">
+  <h2>Mentee Login</h2>
+
+  <form id="loginForm">
+    <div class="input-group">
+      <label for="loginEmail">Username</label>
+      <input type="email" id="loginEmail" placeholder="Enter your username" required />
+    </div>
+    <div class="input-group">
+      <label for="loginPassword">Password</label>
+      <input type="password" id="loginPassword" placeholder="Enter your password" required />
+    </div>
+    <button type="submit" class="login-button">Login</button>
+    <div class="forgot-password">
+      <a href="#">Forgot Password?</a>
+    </div>
+  </form>
+</main>
+
+  <script>
+    document.getElementById("loginForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const email = document.getElementById("loginEmail").value;
+      const password = document.getElementById("loginPassword").value;
+      const role = "mentee";
+
+      try {
+        const res = await fetch("/api/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password, role })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          localStorage.setItem("userName", data.user.name);
+          localStorage.setItem("userEmail", data.user.email);
+          localStorage.setItem("userRole", data.user.role);
+          localStorage.setItem("userId", data.user.id);
+          window.location.href = "mentee.html";
+        } else {
+          alert(data.message || "Login failed");
+        }
+      } catch (err) {
+        alert("Server error: " + err.message);
+      }
+    });
+  </script>
+
+</body>
+</html>

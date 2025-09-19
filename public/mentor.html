@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Mentor-Mentee Portal</title>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f0f8ff;
+            margin: 0;
+            color: #333;
+            opacity: 0;
+            animation: fadeInPage 1s ease-in-out forwards;
+        }
+
+        @keyframes fadeInPage {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Header */
+        header {
+       background-color: #e6e6fa;
+      color: #00008b;
+      font-family: 'Playfair Display', serif;
+      font-size: 2.4em;
+      font-weight: 700;
+      padding: 1.5rem;
+      text-align: center;
+      width: 100%;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      letter-spacing: 1px;
+      transition: color 0.4s ease, text-shadow 0.4s ease;
+    }
+header:hover {
+      color: #483d8b;
+      text-shadow: 0 0 10px rgba(72, 61, 139, 0.6),
+                   0 0 20px rgba(72, 61, 139, 0.4);
+      cursor: pointer;
+    }
+
+        /* Navbar */
+        nav {
+            background-color: #f8f8ff;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 12px 0;
+            font-size: 1em;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+            flex-wrap: wrap;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            padding: 6px 10px;
+            border-radius: 6px;
+        }
+
+nav a:hover{
+    color: #fff;
+    background-color: #483d8b;
+    box-shadow: 0 4px 10px rgba(72,61,139,0.3);
+outline: none;
+}
+
+        h2 {
+            text-align: center;
+            color: #00008b;
+            margin-top: 20px;
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+        }
+
+        /* Container Layout */
+        .container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 30px;
+            padding: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section {
+            flex: 1;
+            min-width: 320px;
+            max-width: 500px;
+            background: linear-gradient(135deg, #e6e6fa, #f0f8ff);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.12);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.18);
+        }
+
+        .section h3 {
+            text-align: center;
+            font-family: 'Playfair Display', serif;
+            color: #00008b;
+            font-size: 1.3em;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .profile-img {
+            display: block;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            width: 130px;
+            height: 130px;
+            object-fit: cover;
+            border: 3px solid #ccc;
+        }
+
+        p, ul {
+            font-size: 0.95em;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        p span {
+            font-weight: 600;
+            color: #00008b;
+        }
+
+        ul {
+            padding-left: 20px;
+        }
+
+        ul li {
+            margin-bottom: 6px;
+        }
+
+        .purple-text {
+            color: #8000ff;
+        }
+
+        .blue-text {
+            color: #0000ff;
+        }
+
+        a {
+            color: #0000ff;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <header>MENTOR–MENTEE PORTAL</header>
+
+    <nav>
+        <a href="mentee.html">👤 View Mentee Profile</a>
+        <a href="meetings.html">📅 Schedule/View Meetings</a>
+        <a href="progress.html">✓ View Progress</a>
+        <a href="feedback.html">💬 Feedback</a>
+        <a href="index.html">Logout</a>
+    </nav>
+
+    <h2>YOUR PROFILE</h2>
+
+    <div class="container">
+        <!-- Left Section -->
+        <div class="section">
+            <h3>Personal Details</h3>
+            <img id="profileImage" src="https://via.placeholder.com/130" alt="Profile" class="profile-img">
+            <p><span>Name:</span> <span id="name">—</span></p>
+            <p><span>Employee ID:</span> <span id="employeeId">—</span></p>
+            <p><span>Department:</span> <span id="department">—</span></p>
+            <p><span>Address:</span> <span id="address">—</span></p>
+            <p><span>Contact No:</span> <span id="contactNo">—</span></p>
+            <p><span>Mail ID:</span> <span id="email">—</span></p>
+            <p><span>About Me:</span> <span id="aboutMe">—</span></p>
+        </div>
+
+        <!-- Right Section -->
+        <div class="section">
+            <h3>Professional Details</h3>
+            <p><span>Job Title:</span> <span id="jobTitle">—</span></p>
+            <p><span>Alma Matter:</span> <span id="almaMatter">—</span></p>
+            <p><span>Areas Of Expertise:</span></p>
+            <ul id="expertise" class="purple-text"></ul>
+            <p><span>Mentoring Experience:</span> <span id="mentoringExperience">—</span></p>
+            <p><span>Available Timings:</span> <span id="availableTimings" class="blue-text">—</span></p>
+            <p><span>LinkedIn Profile:</span> <a id="linkedinProfile" href="#" target="_blank">(LinkedIn URL)</a></p>
+            <p><span>Research Papers:</span></p>
+            <ul id="researchPapers"></ul>
+            <p><span>Clubs Part Of:</span></p>
+            <ul id="clubs" class="blue-text"></ul>
+        </div>
+    </div>
+
+    <script>
+      // Load mentor profile based on logged-in email
+      (async function(){
+        const email = localStorage.getItem('userEmail');
+        if(!email){
+          window.location.href = 'login_mentor.html';
+          return;
+        }
+        try{
+          const res = await fetch(`/api/user/${encodeURIComponent(email)}`);
+          const json = await res.json();
+          if(!json.success) throw new Error('User not found');
+          const u = json.user;
+          document.getElementById('name').textContent = u.name || '—';
+          document.getElementById('employeeId').textContent = u.employeeId || '—';
+          document.getElementById('department').textContent = u.department || '—';
+          document.getElementById('address').textContent = u.address || '—';
+          document.getElementById('contactNo').textContent = u.contactNo || '—';
+          document.getElementById('email').textContent = u.email || '—';
+          document.getElementById('aboutMe').textContent = u.aboutMe || '—';
+          document.getElementById('profileImage').src = u.profileImage || 'https://via.placeholder.com/130';
+
+          document.getElementById('jobTitle').textContent = u.jobTitle || '—';
+          document.getElementById('almaMatter').textContent = u.almaMatter || '—';
+          document.getElementById('mentoringExperience').textContent = u.mentoringExperience || '—';
+          document.getElementById('availableTimings').textContent = u.availableTimings || '—';
+          const link = document.getElementById('linkedinProfile');
+          if(u.linkedinProfile){ link.href = u.linkedinProfile; }
+
+          const expertise = document.getElementById('expertise');
+          expertise.innerHTML = (u.areasOfExpertise||[]).map(x=>`<li>${x}</li>`).join('') || '<li>—</li>';
+          const papers = document.getElementById('researchPapers');
+          papers.innerHTML = (u.researchPapers||[]).map(p=>`<li><a href="${p.url||'#'}" target="_blank">${p.title||'Paper'}</a></li>`).join('') || '<li>—</li>';
+          const clubs = document.getElementById('clubs');
+          clubs.innerHTML = (u.clubsMemberOf||[]).map(c=>`<li>${c}</li>`).join('') || '<li>—</li>';
+        }catch(err){
+          console.error(err);
+        }
+      })();
+    </script>
+    </div>
+</body>
+</html>

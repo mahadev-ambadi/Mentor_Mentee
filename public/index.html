@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mentor-Mentee Portal</title>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        /* General Styling */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f0f8ff;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+            opacity: 0;
+            animation: fadeInPage 1.2s ease-in-out forwards;
+        }
+
+        @keyframes fadeInPage {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Header */
+        header.header {
+            background-color: #e6e6fa;
+            color: #00008b;
+            font-family: 'Playfair Display', serif;
+            font-size: 2.4em;
+            font-weight: 700;
+            padding: 1.5rem;
+            text-align: center;
+            width: 100%;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            letter-spacing: 1px;
+            transition: color 0.4s ease, text-shadow 0.4s ease;
+        }
+
+        header.header:hover {
+            color: #483d8b; /* Deep slate blue */
+            text-shadow: 0 0 10px rgba(72, 61, 139, 0.6),
+                         0 0 20px rgba(72, 61, 139, 0.4);
+            cursor: pointer;
+        }
+
+        /* Navbar */
+        nav.navbar-container {
+            display: flex;
+            justify-content: center;
+            gap: 2.5rem;
+            background-color: #f8f8ff;
+            padding: 1rem 2rem;
+            width: 100%;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            flex-wrap: wrap;
+        }
+
+        .nav-item {
+            position: relative;
+            list-style: none;
+        }
+
+        .nav-item a {
+            text-decoration: none;
+            color: #333;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 500;
+            font-size: 1.05em;
+            transition: color 0.3s ease;
+            cursor: pointer;
+        }
+
+        .nav-item a:hover {
+            color: #0000ff;
+        }
+
+        /* Underline Animation */
+        .nav-item a::after {
+            content: "";
+            position: absolute;
+            width: 0%;
+            height: 2px;
+            bottom: -4px;
+            left: 0;
+            background-color: #0000ff;
+            transition: width 0.3s ease;
+        }
+        .nav-item a:hover::after {
+            width: 100%;
+        }
+
+        /* Dropdown */
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f0f8ff;
+            min-width: 180px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            z-index: 1;
+            top: 100%;
+            left: 0;
+            overflow: hidden;
+        }
+
+        .dropdown-content a {
+            display: block;
+            padding: 12px 16px;
+            color: #333;
+            text-decoration: none;
+            font-size: 0.95em;
+            border-bottom: 1px solid #eee;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #e6e6fa;
+            color: #00008b;
+        }
+
+        .dropdown-content a:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown.active .dropdown-content {
+            display: block;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        /* Fade animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Content Section */
+        .content-section {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin: 2.5rem auto;
+            flex-wrap: wrap;
+            padding: 0 2rem;
+            max-width: 1200px;
+        }
+
+        .info-box {
+            flex: 1;
+            background: linear-gradient(135deg, #e6e6fa, #f0f8ff);
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.12);
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            opacity: 0;
+            animation: fadeInBox 1s ease-in-out forwards;
+        }
+
+        .info-box:nth-child(1) {
+            animation-delay: 0.5s;
+        }
+        .info-box:nth-child(2) {
+            animation-delay: 0.8s;
+        }
+
+        @keyframes fadeInBox {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .info-box:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.18);
+        }
+
+        .info-box h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5em;
+            font-weight: 700;
+            margin-bottom: 0.8rem;
+            color: #00008b;
+            letter-spacing: 0.5px;
+        }
+
+        .info-box p {
+            font-family: 'Poppins', sans-serif;
+            font-size: 1em;
+            font-weight: 400;
+            line-height: 1.6;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .content-section {
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        MENTOR-MENTEE PORTAL
+    </header>
+
+    <nav class="navbar-container">
+        <div class="nav-item"><a href="index.html">Home</a></div>
+        <!--<div class="nav-item"><a href="about.html">About</a></div>-->
+        <div class="nav-item dropdown">
+            <a class="dropdown-toggle">Login &#9660;</a>
+            <div class="dropdown-content">
+                <a href="login_mentor.html">Mentor Login</a>
+                <a href="login_mentee.html">Mentee Login</a>
+            </div>
+        </div>
+        <!--<div class="nav-item"><a href="contact.html">Contact</a></div>-->
+    </nav>
+
+    <main class="content-section">
+        <div class="info-box">
+            <h3>MENTOR</h3>
+            <p>
+                A mentor is a guiding light — sharing wisdom, nurturing growth, and inspiring confidence in every step of the journey.
+            </p>
+        </div>
+
+        <div class="info-box">
+            <h3>MENTEE</h3>
+            <p>
+                A mentee is a seeker of knowledge — driven by curiosity, courage, and the vision to turn dreams into achievements.
+            </p>
+        </div>
+    </main>
+
+    <!-- JavaScript for Dropdown -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const dropdown = document.querySelector(".dropdown");
+            const toggle = dropdown.querySelector(".dropdown-toggle");
+
+            toggle.addEventListener("click", (e) => {
+                e.preventDefault();
+                dropdown.classList.toggle("active");
+            });
+
+            // Close dropdown if clicked outside
+            window.addEventListener("click", (e) => {
+                if (!dropdown.contains(e.target)) {
+                    dropdown.classList.remove("active");
+                }
+            });
+        });
+    </script>
+</body>
+</html>
