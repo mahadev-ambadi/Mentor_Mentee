@@ -192,6 +192,25 @@
       <a href="#">Forgot Password?</a>
     </div>
   </form>
+
+  <hr style="margin: 2rem 0; border: none; border-top: 1px solid #ddd;"/>
+  <h2 style="margin-top:0">Create Mentee Account</h2>
+
+  <form id="signupForm">
+    <div class="input-group">
+      <label for="signupName">Username</label>
+      <input type="text" id="signupName" placeholder="Enter your name" required />
+    </div>
+    <div class="input-group">
+      <label for="signupEmail">Email</label>
+      <input type="email" id="signupEmail" placeholder="Enter your email" required />
+    </div>
+    <div class="input-group">
+      <label for="signupPassword">Password</label>
+      <input type="password" id="signupPassword" placeholder="Create a password" required />
+    </div>
+    <button type="submit" class="login-button">Create Account</button>
+  </form>
 </main>
 
   <script>
@@ -222,6 +241,32 @@
         alert("Server error: " + err.message);
       }
     });
+  // Mentee signup
+  document.getElementById("signupForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const name = document.getElementById("signupName").value;
+    const email = document.getElementById("signupEmail").value;
+    const password = document.getElementById("signupPassword").value;
+    const role = "mentee";
+
+    try{
+      const res = await fetch("/api/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password, role })
+      });
+      const data = await res.json();
+      if(data.success){
+        alert("Account created successfully. You can now log in.");
+        (document.getElementById("signupForm")).reset();
+      } else {
+        alert(data.message || "Signup failed");
+      }
+    }catch(err){
+      alert("Signup failed. Please try again.");
+      console.error("Signup error:", err);
+    }
+  });
   </script>
 
 </body>
