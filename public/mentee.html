@@ -201,10 +201,11 @@ nav a:hover {
     .section-title {
       text-align: center;
       font-weight: 700;
-      font-size: 1.2em;
-      margin: 20px 0 15px;
+      font-size: 1.25em;
+      margin: 18px 0 12px;
       color: #333;
       font-family: 'Playfair Display', serif;
+      letter-spacing: 0.3px;
     }
 
     /* Chart Containers */
@@ -435,8 +436,15 @@ cells.forEach(cell => {
           : (p.yearlyProgress||[]).slice(0,5).map(x=>x.overallScore);
         new Chart(ctxProgress, {
           type: 'bar',
-          data: { labels: semLabels, datasets: [{ label: 'Semester Score', data: semScores, backgroundColor: '#6b5b95' }] },
-          options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, max: 100 } } }
+          data: { labels: semLabels, datasets: [{ label: 'Semester Score', data: semScores, backgroundColor: '#3b2323', borderRadius: 4 }] },
+          options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+              x: { grid: { display: false }, ticks: { font: { family: 'Poppins' } } },
+              y: { beginAtZero: true, max: 100, grid: { color: '#eee' }, ticks: { stepSize: 10, font: { family: 'Poppins' } } }
+            }
+          }
         });
 
         // Activity chart: number of events participated this year from dedicated store
@@ -449,20 +457,41 @@ cells.forEach(cell => {
           : (p.monthlyActivity||[]).map(x=>x.score);
         new Chart(ctxActivity, {
           type: 'line',
-          data: { labels: months, datasets: [{ label: 'Activity', data: activity, borderColor: '#4f5d9b', backgroundColor: 'rgba(79,93,155,0.2)', fill: true, tension: 0.3, pointBackgroundColor: '#4f5d9b' }] },
-          options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, max: 100 } } }
+          data: { labels: months, datasets: [{ label: 'Activity', data: activity, borderColor: '#1f3c88', backgroundColor: 'rgba(31,60,136,0.15)', fill: true, tension: 0.35, pointBackgroundColor: '#1f3c88', pointRadius: 4 }] },
+          options: { responsive: true, plugins: { legend: { display: false } }, scales: { x: { grid: { display:false } }, y: { beginAtZero: true, max: 100, grid: { color:'#eee' } } } }
         });
 
-        // Doughnut charts for attendance and communication
+        // Doughnut charts with center text plugin
+        const centerText = {
+          id: 'centerText',
+          afterDraw(chart, args, pluginOptions) {
+            const {ctx} = chart;
+            const meta = chart.getDatasetMeta(0);
+            if (!meta || !meta.data || !meta.data[0]) return;
+            const x = meta.data[0].x;
+            const y = meta.data[0].y;
+            ctx.save();
+            ctx.font = '600 20px Poppins';
+            ctx.fillStyle = '#333';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(pluginOptions.text || '', x, y);
+            ctx.restore();
+          }
+        };
+        const attPct = p.attendanceRate || 0;
         new Chart(document.getElementById('attendanceDoughnut').getContext('2d'), {
           type: 'doughnut',
-          data: { labels: ['Present','Absent'], datasets: [{ data: [p.attendanceRate||0, 100-(p.attendanceRate||0)], backgroundColor: ['#63c2bf', '#e0e0e0'] }] },
-          options: { cutout: '70%', plugins: { legend: { display: false } } }
+          data: { labels: ['Present','Absent'], datasets: [{ data: [attPct, 100-attPct], backgroundColor: ['#27c4c2', '#e9ecef'] }] },
+          options: { cutout: '75%', plugins: { legend: { display: false }, centerText: { text: `${attPct}%` } } },
+          plugins: [centerText]
         });
+        const comPct = p.communicationRate || 0;
         new Chart(document.getElementById('communicationDoughnut').getContext('2d'), {
           type: 'doughnut',
-          data: { labels: ['Effective','Improve'], datasets: [{ data: [p.communicationRate||0, 100-(p.communicationRate||0)], backgroundColor: ['#4f5d9b', '#e0e0e0'] }] },
-          options: { cutout: '70%', plugins: { legend: { display: false } } }
+          data: { labels: ['Effective','Improve'], datasets: [{ data: [comPct, 100-comPct], backgroundColor: ['#6a5acd', '#e9ecef'] }] },
+          options: { cutout: '75%', plugins: { legend: { display: false }, centerText: { text: `${comPct}%` } } },
+          plugins: [centerText]
         });
       }catch(err){ console.error(err); }
     }
