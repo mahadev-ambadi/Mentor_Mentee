@@ -214,12 +214,38 @@
     <main class="content-area">
         <div class="card academic-progress-card">
             <h3>📚 ACADEMIC PROGRESS</h3>
+            <form id="academicForm" style="display:grid; grid-template-columns: repeat(6, 1fr); gap:10px; align-items:end">
+                <div>
+                    <label>Subject</label>
+                    <input id="ac_subject" type="text" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:6px" required>
+                </div>
+                <div>
+                    <label>Marks</label>
+                    <input id="ac_marks" type="number" min="0" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:6px" required>
+                </div>
+                <div>
+                    <label>Total</label>
+                    <input id="ac_total" type="number" min="1" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:6px" required>
+                </div>
+                <div>
+                    <label>Attendance %</label>
+                    <input id="ac_att" type="number" min="0" max="100" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:6px" required>
+                </div>
+                <div>
+                    <label>Semester</label>
+                    <input id="ac_sem" type="text" placeholder="V" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:6px">
+                </div>
+                <div>
+                    <button type="submit" style="background:#00008b; color:#fff; border:none; padding:10px 12px; border-radius:8px; cursor:pointer; width:100%">Add</button>
+                </div>
+            </form>
             <table>
                 <thead>
                     <tr>
                         <th>SUBJECT</th>
                         <th>MARKS</th>
                         <th>ATT(%)</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody id="academicBody"></tbody>
@@ -228,7 +254,20 @@
 
         <div class="card personal-development-card">
             <h3>🌱 PERSONAL DEVELOPMENT</h3>
-            <ul id="pdList"></ul>
+            <form id="pdForm" style="display:grid; grid-template-columns: 2fr 3fr 1fr; gap:10px; align-items:end; margin-bottom:10px;">
+                <div>
+                    <label>Task</label>
+                    <input id="pd_goal" type="text" placeholder="Party / Conference / Workshop" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:6px" required>
+                </div>
+                <div>
+                    <label>Description</label>
+                    <input id="pd_desc" type="text" placeholder="Short notes" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:6px">
+                </div>
+                <div>
+                    <button type="submit" style="background:#00008b; color:#fff; border:none; padding:10px 12px; border-radius:8px; cursor:pointer; width:100%">Add</button>
+                </div>
+            </form>
+            <ul id="pdList" style="list-style:none; padding-left:0;"></ul>
         </div>
     </main>
 
@@ -237,10 +276,18 @@
     <script>
       const email = localStorage.getItem('userEmail');
       if(!email){ window.location.href = 'login_mentee.html'; }
-      function tr(subject, marks, total, pct){
-        const clsScore = pct < 85 ? 'low-score' : '';
-        const clsAtt = pct < 85 ? 'low-attendance' : '';
-        return `<tr><td>${subject}</td><td class="${clsScore}">${marks}/${total}</td><td class="${clsAtt}">${pct}%</td></tr>`;
+      function tr(id, subject, marks, total, pct){
+        const clsScore = pct < 75 ? 'low-score' : '';
+        const clsAtt = pct < 75 ? 'low-attendance' : '';
+        return `<tr data-id="${id}">
+            <td>${subject}</td>
+            <td class="${clsScore}">${marks}/${total}</td>
+            <td class="${clsAtt}">${pct}%</td>
+            <td>
+              <button class="edit-ac" style="background:#6a5acd;color:#fff;border:none;padding:6px 10px;border-radius:6px;cursor:pointer;margin-right:6px;">Edit</button>
+              <button class="del-ac" style="background:#b22222;color:#fff;border:none;padding:6px 10px;border-radius:6px;cursor:pointer;">Delete</button>
+            </td>
+          </tr>`;
       }
       (async function(){
         try{
@@ -249,13 +296,116 @@
           if(!json.success) return;
           const p = json.progress;
           document.getElementById('academicBody').innerHTML = (p.academicProgress||[])
-            .map(x=>tr(x.subject, x.marks, x.totalMarks, x.percentage)).join('');
+            .map(x=>tr(x._id, x.subject, x.marks, x.totalMarks, x.percentage)).join('');
           document.getElementById('pdList').innerHTML = (p.personalDevelopment||[]).map(g=>{
             const color = g.status === 'completed' ? 'green' : (g.status === 'pending' ? 'grey' : 'green');
-            return `<li><span class="status-indicator ${color}"></span>${g.goal}</li>`;
+            return `<li data-id="${g._id}" style="display:flex;align-items:center;gap:8px;margin:6px 0;">
+              <span class="status-indicator ${color}"></span>
+              <span class="pd-text">${g.goal}</span>
+              <span style="flex:1 1 auto;"></span>
+              <button class="edit-pd" style="background:#6a5acd;color:#fff;border:none;padding:6px 10px;border-radius:6px;cursor:pointer;">Edit</button>
+              <button class="del-pd" style="background:#b22222;color:#fff;border:none;padding:6px 10px;border-radius:6px;cursor:pointer;">Delete</button>
+            </li>`;
           }).join('');
         }catch(e){ console.error(e); }
       })();
+
+      // Handle academic add
+      document.getElementById('academicForm').addEventListener('submit', async (e)=>{
+        e.preventDefault();
+        const payload = {
+          subject: document.getElementById('ac_subject').value,
+          marks: Number(document.getElementById('ac_marks').value),
+          totalMarks: Number(document.getElementById('ac_total').value),
+          percentage: Number(document.getElementById('ac_att').value),
+          semester: document.getElementById('ac_sem').value
+        };
+        const res = await fetch(`/api/progress/${encodeURIComponent(email)}/academic`, {
+          method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if(data.success){
+          const added = data.progress.academicProgress[data.progress.academicProgress.length-1];
+          const row = tr(added._id, payload.subject, payload.marks, payload.totalMarks, payload.percentage);
+          document.getElementById('academicBody').insertAdjacentHTML('beforeend', row);
+          e.target.reset();
+        } else { alert(data.message || 'Failed to add'); }
+      });
+
+      // Handle personal diary add
+      document.getElementById('pdForm').addEventListener('submit', async (e)=>{
+        e.preventDefault();
+        const payload = { goal: document.getElementById('pd_goal').value, description: document.getElementById('pd_desc').value };
+        const res = await fetch(`/api/progress/${encodeURIComponent(email)}/personal`, {
+          method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if(data.success){
+          const added = data.progress.personalDevelopment[data.progress.personalDevelopment.length-1];
+          document.getElementById('pdList').insertAdjacentHTML('beforeend', `
+            <li data-id="${added._id}" style="display:flex;align-items:center;gap:8px;margin:6px 0;">
+              <span class="status-indicator green"></span>
+              <span class="pd-text">${payload.goal}</span>
+              <span style="flex:1 1 auto;"></span>
+              <button class="edit-pd" style="background:#6a5acd;color:#fff;border:none;padding:6px 10px;border-radius:6px;cursor:pointer;">Edit</button>
+              <button class="del-pd" style="background:#b22222;color:#fff;border:none;padding:6px 10px;border-radius:6px;cursor:pointer;">Delete</button>
+            </li>`);
+          e.target.reset();
+        } else { alert(data.message || 'Failed to add'); }
+      });
+
+      // Event delegation: academic edit/delete
+      document.getElementById('academicBody').addEventListener('click', async (e) => {
+        const trEl = e.target.closest('tr');
+        if (!trEl) return;
+        const id = trEl.getAttribute('data-id');
+        if (e.target.classList.contains('del-ac')) {
+          const res = await fetch(`/api/progress/${encodeURIComponent(email)}/academic/${id}`, { method:'DELETE' });
+          const data = await res.json();
+          if (data.success) trEl.remove(); else alert(data.message||'Delete failed');
+        } else if (e.target.classList.contains('edit-ac')) {
+          const currentTds = trEl.querySelectorAll('td');
+          const subject = prompt('Subject', currentTds[0].textContent.trim());
+          if (subject===null) return;
+          const [marksStr,totalStr] = currentTds[1].textContent.trim().split('/');
+          const marks = Number(prompt('Marks', marksStr));
+          if (Number.isNaN(marks)) return alert('Invalid marks');
+          const totalMarks = Number(prompt('Total', totalStr));
+          if (Number.isNaN(totalMarks)) return alert('Invalid total');
+          const attendance = Number(prompt('Attendance %', currentTds[2].textContent.trim().replace('%','')));
+          if (Number.isNaN(attendance)) return alert('Invalid attendance');
+          const res = await fetch(`/api/progress/${encodeURIComponent(email)}/academic/${id}`, {
+            method:'PATCH', headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({ subject, marks, totalMarks, percentage: attendance })
+          });
+          const data = await res.json();
+          if (data.success) {
+            trEl.outerHTML = tr(id, subject, marks, totalMarks, attendance);
+          } else alert(data.message||'Edit failed');
+        }
+      });
+
+      // Event delegation: personal dev edit/delete
+      document.getElementById('pdList').addEventListener('click', async (e) => {
+        const li = e.target.closest('li[data-id]');
+        if (!li) return;
+        const id = li.getAttribute('data-id');
+        if (e.target.classList.contains('del-pd')) {
+          const res = await fetch(`/api/progress/${encodeURIComponent(email)}/personal/${id}`, { method:'DELETE' });
+          const data = await res.json();
+          if (data.success) li.remove(); else alert(data.message||'Delete failed');
+        } else if (e.target.classList.contains('edit-pd')) {
+          const current = li.querySelector('.pd-text').textContent.trim();
+          const goal = prompt('Task', current);
+          if (goal===null) return;
+          const res = await fetch(`/api/progress/${encodeURIComponent(email)}/personal/${id}`, {
+            method:'PATCH', headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({ goal })
+          });
+          const data = await res.json();
+          if (data.success) li.querySelector('.pd-text').textContent = goal; else alert(data.message||'Edit failed');
+        }
+      });
     </script>
 </body>
 </html>

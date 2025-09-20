@@ -342,15 +342,19 @@ nav a:hover {
 
     <!-- Right Panel -->
     <div class="right">
-      <div class="section-title">Your Activity</div>
+      <div class="section-title">Your Activity (Events Participated)</div>
       <div class="chart-card">
         <canvas id="activityChart"></canvas>
       </div>
 
       <div class="section-title">Attendance & Communication</div>
-      <div class="subcharts">
-        <div id="attendanceChart" class="circle-chart" data-percentage="0" data-label="ATTENDANCE"></div>
-        <div id="communicationChart" class="circle-chart" data-percentage="0" data-label="COMMUNICATION"></div>
+      <div class="chart-card" style="display:flex; gap:20px; justify-content:space-around; align-items:center;">
+        <div style="width:240px; height:240px;">
+          <canvas id="attendanceDoughnut"></canvas>
+        </div>
+        <div style="width:240px; height:240px;">
+          <canvas id="communicationDoughnut"></canvas>
+        </div>
       </div>
     </div>
 
@@ -400,13 +404,6 @@ cells.forEach(cell => {
   }
 });
 
-    // Helper to paint circle chart
-    function paintCircle(el, percentage, color){
-      const angle = (percentage / 100) * 360;
-      el.innerHTML = `<span>${percentage}%</span>`;
-      el.style.background = `conic-gradient(${color} 0 ${angle}deg, #e0e0e0 ${angle}deg 360deg)`;
-    }
-
     async function loadUserAndProgress(){
       try{
         // Load user
@@ -428,28 +425,44 @@ cells.forEach(cell => {
         if(!pjson.success) return;
         const p = pjson.progress;
 
-        // Attendance & communication
-        paintCircle(document.getElementById('attendanceChart'), p.attendanceRate || 0, '#63c2bf');
-        paintCircle(document.getElementById('communicationChart'), p.communicationRate || 0, '#4f5d9b');
-
-        // Progress over years
+        // Progress over 5 semesters from dedicated series (fallback to yearlyProgress)
         const ctxProgress = document.getElementById('progressChart').getContext('2d');
-        const years = (p.yearlyProgress||[]).map(x=>x.year);
-        const scores = (p.yearlyProgress||[]).map(x=>x.overallScore);
+        const semLabels = (p.semesterSeries && p.semesterSeries.length)
+          ? p.semesterSeries.map(x=>x.semester)
+          : (p.yearlyProgress||[]).slice(0,5).map(x=>x.year);
+        const semScores = (p.semesterSeries && p.semesterSeries.length)
+          ? p.semesterSeries.map(x=>x.score)
+          : (p.yearlyProgress||[]).slice(0,5).map(x=>x.overallScore);
         new Chart(ctxProgress, {
           type: 'bar',
-          data: { labels: years, datasets: [{ label: 'Score', data: scores, backgroundColor: '#6b5b95' }] },
+          data: { labels: semLabels, datasets: [{ label: 'Semester Score', data: semScores, backgroundColor: '#6b5b95' }] },
           options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, max: 100 } } }
         });
 
-        // Activity chart
+        // Activity chart: number of events participated this year from dedicated store
         const ctxActivity = document.getElementById('activityChart').getContext('2d');
-        const months = (p.monthlyActivity||[]).map(x=>x.month);
-        const activity = (p.monthlyActivity||[]).map(x=>x.score);
+        const months = (p.eventsParticipatedMonthly && p.eventsParticipatedMonthly.length)
+          ? p.eventsParticipatedMonthly.map(x=>x.month)
+          : (p.monthlyActivity||[]).map(x=>x.month);
+        const activity = (p.eventsParticipatedMonthly && p.eventsParticipatedMonthly.length)
+          ? p.eventsParticipatedMonthly.map(x=>x.events)
+          : (p.monthlyActivity||[]).map(x=>x.score);
         new Chart(ctxActivity, {
           type: 'line',
           data: { labels: months, datasets: [{ label: 'Activity', data: activity, borderColor: '#4f5d9b', backgroundColor: 'rgba(79,93,155,0.2)', fill: true, tension: 0.3, pointBackgroundColor: '#4f5d9b' }] },
           options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, max: 100 } } }
+        });
+
+        // Doughnut charts for attendance and communication
+        new Chart(document.getElementById('attendanceDoughnut').getContext('2d'), {
+          type: 'doughnut',
+          data: { labels: ['Present','Absent'], datasets: [{ data: [p.attendanceRate||0, 100-(p.attendanceRate||0)], backgroundColor: ['#63c2bf', '#e0e0e0'] }] },
+          options: { cutout: '70%', plugins: { legend: { display: false } } }
+        });
+        new Chart(document.getElementById('communicationDoughnut').getContext('2d'), {
+          type: 'doughnut',
+          data: { labels: ['Effective','Improve'], datasets: [{ data: [p.communicationRate||0, 100-(p.communicationRate||0)], backgroundColor: ['#4f5d9b', '#e0e0e0'] }] },
+          options: { cutout: '70%', plugins: { legend: { display: false } } }
         });
       }catch(err){ console.error(err); }
     }

@@ -37,6 +37,113 @@ app.post("/api/login", async (req, res) => {
 
     let user = await User.findOne({ email, role });
 
+// Edit academic item
+app.patch("/api/progress/:email/academic/:id", async (req, res) => {
+  try {
+    const { email, id } = { email: req.params.email, id: req.params.id };
+    const updateFields = {};
+    ["subject","marks","totalMarks","percentage","semester","year"].forEach(k=>{
+      if (req.body[k] !== undefined) updateFields[`academicProgress.$.${k}`] = req.body[k];
+    });
+    const progress = await Progress.findOneAndUpdate(
+      { userEmail: email, "academicProgress._id": id },
+      { $set: updateFields, $currentDate: { lastUpdated: true } },
+      { new: true }
+    );
+    res.json({ success: true, progress });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Error editing academic item" });
+  }
+});
+
+// Delete academic item
+app.delete("/api/progress/:email/academic/:id", async (req, res) => {
+  try {
+    const progress = await Progress.findOneAndUpdate(
+      { userEmail: req.params.email },
+      { $pull: { academicProgress: { _id: req.params.id } }, $currentDate: { lastUpdated: true } },
+      { new: true }
+    );
+    res.json({ success: true, progress });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Error deleting academic item" });
+  }
+});
+
+// Edit personal item
+app.patch("/api/progress/:email/personal/:id", async (req, res) => {
+  try {
+    const { email, id } = { email: req.params.email, id: req.params.id };
+    const updateFields = {};
+    ["goal","status","description"].forEach(k=>{
+      if (req.body[k] !== undefined) updateFields[`personalDevelopment.$.${k}`] = req.body[k];
+    });
+    const progress = await Progress.findOneAndUpdate(
+      { userEmail: email, "personalDevelopment._id": id },
+      { $set: updateFields, $currentDate: { lastUpdated: true } },
+      { new: true }
+    );
+    res.json({ success: true, progress });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Error editing personal item" });
+  }
+});
+
+// Delete personal item
+app.delete("/api/progress/:email/personal/:id", async (req, res) => {
+  try {
+    const progress = await Progress.findOneAndUpdate(
+      { userEmail: req.params.email },
+      { $pull: { personalDevelopment: { _id: req.params.id } }, $currentDate: { lastUpdated: true } },
+      { new: true }
+    );
+    res.json({ success: true, progress });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Error deleting personal item" });
+  }
+});
+
+// Set the 5-semester series at once
+app.put("/api/progress/:email/semester-series", async (req, res) => {
+  try {
+    const { series } = req.body; // [{semester, score}] (expect length 5)
+    if (!Array.isArray(series) || series.length === 0) {
+      return res.status(400).json({ success: false, message: "series array required" });
+    }
+    const progress = await Progress.findOneAndUpdate(
+      { userEmail: req.params.email },
+      { semesterSeries: series, lastUpdated: new Date() },
+      { new: true, upsert: true }
+    );
+    res.json({ success: true, progress });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Error updating semester series" });
+  }
+});
+
+// Upsert a single month of events participated
+app.post("/api/progress/:email/events", async (req, res) => {
+  try {
+    const { month, year, events } = req.body;
+    if (!month || !year || events == null) {
+      return res.status(400).json({ success: false, message: "month, year, events required" });
+    }
+    // Remove existing month-year then push the new one
+    let progress = await Progress.findOneAndUpdate(
+      { userEmail: req.params.email },
+      { $pull: { eventsParticipatedMonthly: { month, year } } },
+      { new: true, upsert: true }
+    );
+    progress = await Progress.findOneAndUpdate(
+      { userEmail: req.params.email },
+      { $push: { eventsParticipatedMonthly: { month, year, events } }, $currentDate: { lastUpdated: true } },
+      { new: true }
+    );
+    res.json({ success: true, progress });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Error updating events participated" });
+  }
+});
     if (!user) {
       const hashedPassword = await bcrypt.hash(password, 10);
       const name = email.split("@")[0];
@@ -187,6 +294,29 @@ app.get("/api/progress/:email", async (req, res) => {
           { month: "Nov", year: 2024, score: 75 },
           { month: "Dec", year: 2024, score: 80 }
         ],
+        // Exactly five semesters for dashboard
+        semesterSeries: [
+          { semester: "Sem I", score: 72 },
+          { semester: "Sem II", score: 78 },
+          { semester: "Sem III", score: 81 },
+          { semester: "Sem IV", score: 86 },
+          { semester: "Sem V", score: 90 }
+        ],
+        // Dedicated monthly events participated
+        eventsParticipatedMonthly: [
+          { month: "Jan", year: 2024, events: 1 },
+          { month: "Feb", year: 2024, events: 0 },
+          { month: "Mar", year: 2024, events: 2 },
+          { month: "Apr", year: 2024, events: 1 },
+          { month: "May", year: 2024, events: 3 },
+          { month: "Jun", year: 2024, events: 2 },
+          { month: "Jul", year: 2024, events: 0 },
+          { month: "Aug", year: 2024, events: 1 },
+          { month: "Sep", year: 2024, events: 2 },
+          { month: "Oct", year: 2024, events: 1 },
+          { month: "Nov", year: 2024, events: 1 },
+          { month: "Dec", year: 2024, events: 3 }
+        ],
         yearlyProgress: [
           { year: "VII", overallScore: 70 },
           { year: "VIII", overallScore: 80 },
@@ -215,6 +345,46 @@ app.put("/api/progress/:email", async (req, res) => {
     res.json({ success: true, message: "Progress updated successfully", progress });
   } catch (err) {
     res.status(500).json({ success: false, message: "Error updating progress" });
+  }
+});
+
+// Add academic entry: { subject, marks, totalMarks, percentage, semester, year }
+app.post("/api/progress/:email/academic", async (req, res) => {
+  try {
+    const { subject, marks, totalMarks, percentage, semester, year } = req.body;
+    if (!subject || marks == null || !totalMarks || percentage == null) {
+      return res.status(400).json({ success: false, message: "Missing required fields" });
+    }
+    const progress = await Progress.findOneAndUpdate(
+      { userEmail: req.params.email },
+      {
+        $push: { academicProgress: { subject, marks, totalMarks, percentage, semester, year } },
+        $set: { lastUpdated: new Date() }
+      },
+      { new: true, upsert: true }
+    );
+    res.json({ success: true, progress });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Error adding academic progress" });
+  }
+});
+
+// Add personal development diary item: { goal, status, description }
+app.post("/api/progress/:email/personal", async (req, res) => {
+  try {
+    const { goal, status, description } = req.body;
+    if (!goal) return res.status(400).json({ success: false, message: "Goal required" });
+    const progress = await Progress.findOneAndUpdate(
+      { userEmail: req.params.email },
+      {
+        $push: { personalDevelopment: { goal, status: status || 'completed', description } },
+        $set: { lastUpdated: new Date() }
+      },
+      { new: true, upsert: true }
+    );
+    res.json({ success: true, progress });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Error adding personal development item" });
   }
 });
 

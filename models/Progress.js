@@ -38,6 +38,19 @@ const progressSchema = new mongoose.Schema({
         year: { type: String, required: true },
         overallScore: { type: Number, required: true }
     }],
+
+    // Exactly 5 semesters series to display on dashboard
+    semesterSeries: [{
+        semester: { type: String, required: true }, // e.g., 'Sem I', 'Sem II'
+        score: { type: Number, required: true }
+    }],
+
+    // Dedicated store: events participated per month
+    eventsParticipatedMonthly: [{
+        month: { type: String, required: true }, // Jan, Feb, ...
+        year: { type: Number, required: true },
+        events: { type: Number, required: true }
+    }],
     
     lastUpdated: { type: Date, default: Date.now }
 });
