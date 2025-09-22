@@ -458,3 +458,15 @@ app.get("/api/mentor/:menteeEmail", async (req, res) => {
   }
 });
 
+// Serve root explicitly (static will handle this too, but this helps for health checks)
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// -------------------- 404 Handler (must be last) --------------------
+app.use((req, res) => {
+  res.status(404).json({ success: false, message: 'API route not found' });
+});
+
+// Start server (after all routes)
+app.listen(PORT, () => console.log(`🚀 Server running at http://localhost:${PORT}`));
