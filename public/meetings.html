@@ -66,6 +66,7 @@
       <div id="scheduleForm">
         <h3>Schedule New Meeting</h3>
         <input type="text" id="menteeName" placeholder="Mentee Name" />
+        <input type="email" id="menteeEmail" placeholder="Mentee Email (recommended)" />
         <input type="text" id="meetingTopic" placeholder="Topic" />
         <input type="date" id="meetingDate" />
         <input type="text" id="meetingLink" placeholder="Meeting Link (Zoom/Meet)" />
@@ -77,6 +78,7 @@
   <script>
     const userName = localStorage.getItem("userName");
     const userRole = localStorage.getItem("userRole");
+    const userEmail = localStorage.getItem("userEmail");
 
     if (!userName || !userRole) {
       alert("User not logged in. Redirecting...");
@@ -138,15 +140,31 @@
     }
 
     async function submitMeeting() {
-      const mentee = document.getElementById("menteeName").value;
-      const topic = document.getElementById("meetingTopic").value;
+      if (userRole !== 'mentor') return alert('Only mentors can schedule meetings');
+      const mentee = document.getElementById("menteeName").value.trim();
+      const menteeEmail = document.getElementById("menteeEmail").value.trim();
+      const topic = document.getElementById("meetingTopic").value.trim();
       const date = document.getElementById("meetingDate").value;
-      const link = document.getElementById("meetingLink").value;
+      const link = document.getElementById("meetingLink").value.trim();
+
+      if (!mentee || !topic || !date || !link) return alert('Please fill name, topic, date and link');
+
+      // Optional but recommended: validate mentee email and that it exists as a user
+      if (menteeEmail) {
+        try {
+          const chk = await fetch(`/api/user/${encodeURIComponent(menteeEmail)}`);
+          const cj = await chk.json();
+          if (!cj.success || (cj.user && cj.user.role !== 'mentee')) {
+            const cont = confirm('No mentee user found for this email. Continue anyway?');
+            if (!cont) return;
+          }
+        } catch(e) { /* ignore and continue */ }
+      }
 
       const res = await fetch("/api/meetings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mentor: userName, mentee, topic, date, link })
+        body: JSON.stringify({ mentor: userName, mentee, menteeEmail, topic, date, link })
       });
 
       const data = await res.json();

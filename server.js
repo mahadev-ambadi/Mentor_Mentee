@@ -237,7 +237,7 @@ app.get("/api/meetings", async (req, res) => {
   }
 });
 app.post("/api/meetings", async (req, res) => {
-  const { mentor, mentee, topic, date, link } = req.body;
+  const { mentor, mentee, menteeEmail, topic, date, link } = req.body;
   if (!mentor || !mentee || !topic || !date || !link) {
     return res.status(400).json({ success: false, message: "All fields required" });
   }
@@ -253,11 +253,18 @@ app.post("/api/meetings", async (req, res) => {
         role: 'mentor'
       });
       if (mentorUser) {
-        // Resolve mentee by email or name and set mentor field to mentor's email
-        await User.findOneAndUpdate(
-          { $or: [ { email: mentee }, { name: mentee } ], role: 'mentee' },
-          { mentor: mentorUser.email }
-        );
+        // Prefer explicit menteeEmail if provided; else try by email or name
+        if (menteeEmail) {
+          await User.findOneAndUpdate(
+            { email: menteeEmail, role: 'mentee' },
+            { mentor: mentorUser.email }
+          );
+        } else {
+          await User.findOneAndUpdate(
+            { $or: [ { email: mentee }, { name: mentee } ], role: 'mentee' },
+            { mentor: mentorUser.email }
+          );
+        }
       }
     } catch (e) {
       console.warn('Auto-link mentor->mentee after meeting failed (non-fatal):', e.message);
@@ -486,6 +493,34 @@ app.get("/api/mentor/:menteeEmail", async (req, res) => {
     res.json({ success: true, mentor });
   } catch (err) {
     res.status(500).json({ success: false, message: "Error fetching mentor" });
+  }
+});
+
+// -------------------- ADMIN/HELPER: BACKFILL LINKS FROM MEETINGS --------------------
+// Body: { mentorEmail }
+// Links any mentee users (by name) who have meetings where mentor == mentor's name
+app.post('/api/backfill-mentees-from-meetings', async (req, res) => {
+  try {
+    const { mentorEmail } = req.body;
+    if (!mentorEmail) return res.status(400).json({ success: false, message: 'mentorEmail required' });
+    const mentorUser = await User.findOne({ email: mentorEmail, role: 'mentor' });
+    if (!mentorUser) return res.status(404).json({ success: false, message: 'Mentor not found' });
+    const mentorName = mentorUser.name;
+    const menteeNames = await Meeting.distinct('mentee', { mentor: mentorName });
+    if (!menteeNames.length) return res.json({ success: true, linked: 0, mentees: [] });
+    const mentees = await User.find({ role: 'mentee', name: { $in: menteeNames } });
+    let linked = 0;
+    for (const m of mentees) {
+      if (m.mentor !== mentorEmail) {
+        m.mentor = mentorEmail;
+        await m.save();
+        linked++;
+      }
+    }
+    return res.json({ success: true, linked, mentees: mentees.map(x=>({ name:x.name, email:x.email })) });
+  } catch (err) {
+    console.error('Backfill error:', err);
+    return res.status(500).json({ success: false, message: 'Server error: ' + err.message });
   }
 });
 
