@@ -13,7 +13,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Connect to MongoDB
-mongoose.connect(process.env.MONGO_URI || "mongodb://127.0.0.1:27017/mentor_portal", {
+mongoose.connect(process.env.MONGO_URI || "mongodb://localhost:27017/mentor_portal", {
   useNewUrlParser: true,
   useUnifiedTopology: true
 })
@@ -245,6 +245,23 @@ app.post("/api/meetings", async (req, res) => {
   try {
     const meeting = new Meeting({ mentor, mentee, topic, date, link });
     await meeting.save();
+    // Auto-link mentee to mentor (best-effort) so mentor can see mentees in progress page
+    try {
+      // Resolve mentor user by email or name
+      const mentorUser = await User.findOne({
+        $or: [ { email: mentor }, { name: mentor } ],
+        role: 'mentor'
+      });
+      if (mentorUser) {
+        // Resolve mentee by email or name and set mentor field to mentor's email
+        await User.findOneAndUpdate(
+          { $or: [ { email: mentee }, { name: mentee } ], role: 'mentee' },
+          { mentor: mentorUser.email }
+        );
+      }
+    } catch (e) {
+      console.warn('Auto-link mentor->mentee after meeting failed (non-fatal):', e.message);
+    }
     res.json({ success: true, message: "Meeting scheduled!" });
   } catch (err) {
     res.status(500).json({ success: false, message: "Error scheduling meeting" });
@@ -431,14 +448,28 @@ app.get("/api/mentees/:mentorEmail", async (req, res) => {
     const mentorEmail = req.params.mentorEmail;
     const mentorUser = await User.findOne({ email: mentorEmail, role: "mentor" });
     const mentorName = mentorUser ? mentorUser.name : undefined;
-
-    const mentees = await User.find({
+    // First, mentees directly linked via user.mentor
+    const directMentees = await User.find({
       role: "mentee",
       $or: [
-        { mentor: mentorEmail }, // if stored as email
-        ...(mentorName ? [{ mentor: mentorName }] : []) // if stored as name
+        { mentor: mentorEmail },
+        ...(mentorName ? [{ mentor: mentorName }] : [])
       ]
     });
+
+    // If none or to supplement, derive mentees from Meeting history using mentor name
+    let derivedMentees = [];
+    if (mentorName) {
+      const meetingMenteeNames = await Meeting.distinct('mentee', { mentor: mentorName });
+      if (meetingMenteeNames.length) {
+        derivedMentees = await User.find({ role: 'mentee', name: { $in: meetingMenteeNames } });
+      }
+    }
+
+    // Merge unique by email
+    const byEmail = new Map();
+    [...directMentees, ...derivedMentees].forEach(u => byEmail.set(u.email, u));
+    const mentees = Array.from(byEmail.values());
     res.json({ success: true, mentees });
   } catch (err) {
     res.status(500).json({ success: false, message: "Error fetching mentees" });
@@ -455,6 +486,29 @@ app.get("/api/mentor/:menteeEmail", async (req, res) => {
     res.json({ success: true, mentor });
   } catch (err) {
     res.status(500).json({ success: false, message: "Error fetching mentor" });
+  }
+});
+
+// -------------------- ADMIN/HELPER: ASSIGN MENTOR TO MENTEE --------------------
+// Body: { menteeEmail, mentorEmail }
+app.post('/api/assign-mentor', async (req, res) => {
+  try {
+    const { menteeEmail, mentorEmail } = req.body;
+    if (!menteeEmail || !mentorEmail) {
+      return res.status(400).json({ success: false, message: 'menteeEmail and mentorEmail are required' });
+    }
+    const mentor = await User.findOne({ email: mentorEmail, role: 'mentor' });
+    if (!mentor) return res.status(404).json({ success: false, message: 'Mentor not found' });
+    const mentee = await User.findOneAndUpdate(
+      { email: menteeEmail, role: 'mentee' },
+      { mentor: mentorEmail },
+      { new: true }
+    );
+    if (!mentee) return res.status(404).json({ success: false, message: 'Mentee not found' });
+    return res.json({ success: true, message: 'Mentor assigned to mentee', mentee });
+  } catch (err) {
+    console.error('Assign mentor error:', err);
+    return res.status(500).json({ success: false, message: 'Server error: ' + err.message });
   }
 });
 
