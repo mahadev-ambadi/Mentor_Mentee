@@ -198,13 +198,30 @@ app.post("/api/signup", async (req, res) => {
   }
 });
 
-// -------------------- 404 Handler --------------------
-app.use((req, res) => {
-  res.status(404).json({ success: false, message: "API route not found" });
+// -------------------- FORGOT PASSWORD --------------------
+// NOTE: For demo purposes only. In production, send a reset link via email instead of returning the password.
+app.post("/api/forgot-password", async (req, res) => {
+  try {
+    const { email, role } = req.body;
+    if (!email || !role) {
+      return res.status(400).json({ success: false, message: "Email and role are required" });
+    }
+    const user = await User.findOne({ email, role });
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+    const tempPassword = Math.random().toString(36).slice(-8); // simple 8-char password
+    const hashed = await bcrypt.hash(tempPassword, 10);
+    user.password = hashed;
+    await user.save();
+    // In real app, email this temp password or a reset link to the user
+    return res.json({ success: true, message: "Temporary password generated", tempPassword });
+  } catch (err) {
+    console.error("Forgot password error:", err);
+    return res.status(500).json({ success: false, message: "Server error: " + err.message });
+  }
 });
 
-// Start server
-app.listen(PORT, () => console.log(`🚀 Server running at http://localhost:${PORT}`));
 app.get("/api/meetings", async (req, res) => {
   const { role, name } = req.query;
   if (!role || !name) {
@@ -411,9 +428,16 @@ app.get("/api/feedback", async (req, res) => {
 // -------------------- MENTEE-MENTOR RELATIONSHIP --------------------
 app.get("/api/mentees/:mentorEmail", async (req, res) => {
   try {
-    const mentees = await User.find({ 
-      role: "mentee", 
-      mentor: req.params.mentorEmail 
+    const mentorEmail = req.params.mentorEmail;
+    const mentorUser = await User.findOne({ email: mentorEmail, role: "mentor" });
+    const mentorName = mentorUser ? mentorUser.name : undefined;
+
+    const mentees = await User.find({
+      role: "mentee",
+      $or: [
+        { mentor: mentorEmail }, // if stored as email
+        ...(mentorName ? [{ mentor: mentorName }] : []) // if stored as name
+      ]
     });
     res.json({ success: true, mentees });
   } catch (err) {

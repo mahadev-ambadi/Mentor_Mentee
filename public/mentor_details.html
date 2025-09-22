@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mentor Details</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    body { font-family:'Poppins',sans-serif; background:#f0f8ff; margin:0; color:#333; }
+    header { background:#e6e6fa; color:#00008b; font-family:'Playfair Display',serif; font-size:2.2em; font-weight:700; text-align:center; padding:18px 0; box-shadow:0 4px 6px rgba(0,0,0,0.1); }
+    nav { display:flex; justify-content:center; gap:18px; padding:12px 0; background:#f8f8ff; box-shadow:0 2px 4px rgba(0,0,0,0.08); flex-wrap:wrap; }
+    nav a { text-decoration:none; color:#333; font-weight:500; padding:6px 10px; border-radius:8px; transition:.25s; }
+    nav a:hover { color:#fff; background:#483d8b; box-shadow:0 4px 10px rgba(72,61,139,.3); }
+    .container { max-width:1100px; margin:24px auto; padding:0 16px; display:flex; gap:24px; flex-wrap:wrap; }
+    .card { flex:1; min-width:320px; background:linear-gradient(135deg,#e6e6fa,#f0f8ff); border-radius:12px; padding:20px; box-shadow:0 6px 15px rgba(0,0,0,0.12); }
+    .card h3 { font-family:'Playfair Display',serif; color:#00008b; text-align:center; margin-top:0; }
+    .profile-img { display:block; margin:0 auto 16px; width:130px; height:130px; border-radius:50%; object-fit:cover; border:3px solid #ccc; }
+    .row { margin:8px 0; }
+    .label { font-weight:600; color:#00008b; }
+    ul { margin:8px 0 0 18px; }
+    .muted { color:#666; font-size:.95em; text-align:center; margin-top:8px; }
+  </style>
+</head>
+<body>
+  <header>MENTOR–MENTEE PORTAL</header>
+  <nav>
+    <a href="mentee.html">👤 Mentee Profile</a>
+    <a href="mentor_details.html">🧑‍🏫 Mentor Details</a>
+    <a href="meetings.html">📅 Meetings</a>
+    <a href="progress.html">✓ Progress</a>
+    <a href="feedback.html">💬 Feedback</a>
+    <a href="index.html">Logout</a>
+  </nav>
+  <div class="container">
+    <div class="card" style="flex-basis:360px;">
+      <h3>Personal Info</h3>
+      <img id="profileImage" class="profile-img" src="https://via.placeholder.com/130" alt="Mentor"/>
+      <div class="row"><span class="label">Name:</span> <span id="name">—</span></div>
+      <div class="row"><span class="label">Employee ID:</span> <span id="employeeId">—</span></div>
+      <div class="row"><span class="label">Department:</span> <span id="department">—</span></div>
+      <div class="row"><span class="label">Contact:</span> <span id="contactNo">—</span></div>
+      <div class="row"><span class="label">Address:</span> <span id="address">—</span></div>
+      <div class="row"><span class="label">Email:</span> <span id="email">—</span></div>
+      <div class="row"><span class="label">About Me:</span> <span id="aboutMe">—</span></div>
+    </div>
+    <div class="card">
+      <h3>Professional Info</h3>
+      <div class="row"><span class="label">Job Title:</span> <span id="jobTitle">—</span></div>
+      <div class="row"><span class="label">Alma Mater:</span> <span id="almaMatter">—</span></div>
+      <div class="row"><span class="label">Areas Of Expertise:</span></div>
+      <ul id="expertise"><li>—</li></ul>
+      <div class="row"><span class="label">Mentoring Experience:</span> <span id="mentoringExperience">—</span></div>
+      <div class="row"><span class="label">Available Timings:</span> <span id="availableTimings">—</span></div>
+      <div class="row"><span class="label">LinkedIn:</span> <a id="linkedinProfile" href="#" target="_blank">(profile)</a></div>
+      <div class="row"><span class="label">Research Papers:</span></div>
+      <ul id="researchPapers"><li>—</li></ul>
+      <div class="row"><span class="label">Clubs:</span></div>
+      <ul id="clubs"><li>—</li></ul>
+    </div>
+  </div>
+  <p class="muted" id="hint"></p>
+  <script>
+    (async function(){
+      const menteeEmail = localStorage.getItem('userEmail');
+      const role = localStorage.getItem('userRole');
+      if(!menteeEmail){ window.location.href = 'login_mentee.html'; return; }
+      if(role !== 'mentee'){
+        document.getElementById('hint').textContent = 'Note: You are not logged in as a mentee. This page shows assigned mentor details for mentees.';
+      }
+      try{
+        const res = await fetch(`/api/mentor/${encodeURIComponent(menteeEmail)}`);
+        const json = await res.json();
+        if(!json.success){
+          document.getElementById('hint').textContent = json.message || 'Mentor not assigned yet.';
+          return;
+        }
+        const u = json.mentor;
+        document.getElementById('name').textContent = u.name || '—';
+        document.getElementById('employeeId').textContent = u.employeeId || '—';
+        document.getElementById('department').textContent = u.department || '—';
+        document.getElementById('address').textContent = u.address || '—';
+        document.getElementById('contactNo').textContent = u.contactNo || '—';
+        document.getElementById('email').textContent = u.email || '—';
+        document.getElementById('aboutMe').textContent = u.aboutMe || '—';
+        document.getElementById('profileImage').src = u.profileImage || 'https://via.placeholder.com/130';
+
+        document.getElementById('jobTitle').textContent = u.jobTitle || '—';
+        document.getElementById('almaMatter').textContent = u.almaMatter || '—';
+        document.getElementById('mentoringExperience').textContent = u.mentoringExperience || '—';
+        document.getElementById('availableTimings').textContent = u.availableTimings || '—';
+        const link = document.getElementById('linkedinProfile');
+        if(u.linkedinProfile){ link.href = u.linkedinProfile; }
+        const expertise = document.getElementById('expertise');
+        expertise.innerHTML = (u.areasOfExpertise||[]).map(x=>`<li>${x}</li>`).join('') || '<li>—</li>';
+        const papers = document.getElementById('researchPapers');
+        papers.innerHTML = (u.researchPapers||[]).map(p=>`<li><a href="${p.url||'#'}" target="_blank">${p.title||'Paper'}</a></li>`).join('') || '<li>—</li>';
+        const clubs = document.getElementById('clubs');
+        clubs.innerHTML = (u.clubsMemberOf||[]).map(c=>`<li>${c}</li>`).join('') || '<li>—</li>';
+      }catch(err){
+        console.error(err);
+        document.getElementById('hint').textContent = 'Error fetching mentor details.';
+      }
+    })();
+  </script>
+</body>
+</html>

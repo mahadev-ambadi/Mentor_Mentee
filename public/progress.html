@@ -4,128 +4,106 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Progress and Development - Mentor-Mentee Portal</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
 
     <style>
         /* --- Embedded CSS Starts Here --- */
 
         body {
             margin: 0;
-            font-family: Arial, sans-serif;
-            background-color: #f0f8ff; /* Light blue background as in your image */
+            font-family: 'Poppins', sans-serif;
+            background-color: #f0f8ff;
+            color: #333;
             display: flex;
             flex-direction: column;
-            min-height: 100vh; /* Ensure footer stays at bottom */
+            min-height: 100vh;
         }
 
         /* Header Banner (MENTOR-MENTEE PORTAL) */
         .header-banner {
-            background-color: #add8e6; /* Light blue */
+            background-color: #e6e6fa;
             padding: 20px 0;
             text-align: center;
-            border-bottom: 2px solid #ccc; /* Subtle border */
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
         .portal-title {
-            color: #00008b; /* Dark blue */
-            font-family: 'Roboto', sans-serif; /* Or a similar bold, modern font */
-            font-size: 2.5em;
+            color: #00008b;
+            font-family: 'Playfair Display', serif;
+            font-size: 2.4em;
             margin: 0;
-            letter-spacing: 2px;
+            letter-spacing: 1px;
+            font-weight: 700;
         }
 
         /* Sub-Header (PROGRESS AND DEVELOPMENT) */
         .sub-header {
-            background-color: #d3d3d3; /* Light grey */
-            padding: 10px 20px;
-            display: flex; /* Keeps items on a single line */
-            justify-content: space-between; /* Pushes items to ends, allowing title to center */
-            align-items: center; /* Vertically centers items */
-            border-bottom: 1px solid #bbb;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            background-color: #f8f8ff;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
         }
 
         .page-title {
-            color: #4b0082; /* Indigo/Purple */
-            font-family: 'Playfair Display', serif; /* Or a similar elegant, bold font */
-            font-size: 1.8em;
+            color: #00008b;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.6em;
             margin: 0;
-            letter-spacing: 1px;
-            font-weight: bold;
-            text-shadow: 1px 1px 2px rgba(0,0,0,0.2);
-            text-align: center; /* Center the text content within this element */
-            flex-grow: 1; /* Allows this element to take up all available space, pushing logout right */
+            letter-spacing: 0.5px;
+            font-weight: 700;
+            text-align: center;
+            flex-grow: 1;
         }
 
         .logout-link {
             color: #333;
             text-decoration: none;
-            font-weight: bold;
-            padding: 5px 10px;
-            border-radius: 5px;
-            transition: background-color 0.3s ease;
+            font-weight: 500;
+            padding: 6px 10px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
         }
 
         .logout-link:hover {
-            background-color: #c0c0c0;
+            color: #fff;
+            background-color: #483d8b;
+            box-shadow: 0 4px 10px rgba(72,61,139,0.3);
         }
 
         /* Main Content Area */
         .content-area {
-            flex-grow: 1; /* Allows content area to take up available space */
+            flex-grow: 1;
             padding: 30px;
             display: flex;
-            justify-content: center; /* Center the cards horizontally */
-            gap: 40px; /* Space between the two cards */
-            align-items: flex-start; /* Align cards to the top */
-            position: relative; /* For the background image */
-            overflow: hidden; /* Hide overflow from background image */
+            justify-content: center;
+            gap: 30px;
+            align-items: flex-start;
         }
 
         /* Background images (transparent figures) */
         /* IMPORTANT: Replace 'https://via.placeholder.com/600x400/add8e6/add8e6?text=Background+Image+Placeholder'
            with the actual path to your transparent mentor-mentee image */
-        .content-area::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 80%; /* Adjust size as needed */
-            height: 80%; /* Adjust size as needed */
-            background-image: url('https://via.placeholder.com/600x400/add8e6/add8e6?text=Background+Image+Placeholder'); /* REPLACE THIS URL */
-            background-size: contain;
-            background-repeat: no-repeat;
-            opacity: 0.2; /* Adjust transparency */
-            z-index: 0; /* Ensure it's behind content */
-        }
+        /* Removed background illustration to match other pages */
 
         /* Card Styling */
         .card {
-            background-color: #fff;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            z-index: 1; /* Ensure cards are above the background image */
-            position: relative; /* For containing children */
-            min-width: 400px; /* Minimum width for cards */
+            background: linear-gradient(135deg, #e6e6fa, #f0f8ff);
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.12);
+            min-width: 360px;
         }
 
-        .academic-progress-card {
-            border: 3px solid #ffd700; /* Yellow border */
-            background-color: #ffffe0; /* Lighter yellow background */
-        }
-
-        .personal-development-card {
-            border: 3px solid #e0b0ff; /* Purple border */
-            background-color: #f8e0ff; /* Lighter purple background */
-        }
 
         .card h3 {
-            font-size: 1.5em;
-            color: #333;
-            margin-top: 0;
-            margin-bottom: 20px;
+            font-size: 1.3em;
+            color: #00008b;
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            text-align: center;
+            margin: 0 0 16px 0;
         }
 
         /* Table Styling (Academic Progress) */
@@ -137,15 +115,15 @@
         }
 
         table th, table td {
-            border: 1px solid #ddd;
+            border: 1px solid #e9ecef;
             padding: 12px;
             text-align: left;
         }
 
         table th {
-            background-color: #f2f2f2;
-            color: #555;
-            font-weight: bold;
+            background-color: #f8f8ff;
+            color: #333;
+            font-weight: 600;
         }
 
         .low-score {
@@ -191,11 +169,33 @@
 
         /* Footer */
         .footer-bottom {
-            background-color: #333; /* Dark footer as in your previous screenshot */
+            background-color: #333;
             color: white;
             text-align: center;
             padding: 10px 0;
             font-size: 0.9em;
+        }
+
+        /* Inputs and buttons to match theme */
+        input[type="text"], input[type="number"], input[type="date"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-family: 'Poppins', sans-serif;
+            box-sizing: border-box;
+        }
+        button {
+            background: #00008b;
+            color: #fff;
+            border: none;
+            padding: 10px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #483d8b;
+            box-shadow: 0 4px 10px rgba(72,61,139,0.3);
         }
 
         /* --- Embedded CSS Ends Here --- */
@@ -212,6 +212,13 @@
     </nav>
 
     <main class="content-area">
+        <!-- Mentee selector for mentors -->
+        <div class="card" id="menteesCard" style="display:none; min-width:300px; border:3px solid #add8e6; background:#f0f8ff;">
+            <h3>👥 Your Mentees</h3>
+            <ul id="menteeList" style="list-style:none; padding:0; margin:0; max-height:240px; overflow:auto;"></ul>
+            <button id="loadProgressBtn" style="margin-top:10px; background:#00008b; color:#fff; border:none; padding:10px 12px; border-radius:8px; cursor:pointer; width:100%">Load Progress</button>
+            <div id="menteeHint" style="color:#555; font-size:0.9em; margin-top:8px;">Select a mentee and click Load Progress</div>
+        </div>
         <div class="card academic-progress-card">
             <h3>📚 ACADEMIC PROGRESS</h3>
             <form id="academicForm" style="display:grid; grid-template-columns: repeat(6, 1fr); gap:10px; align-items:end">
@@ -274,8 +281,18 @@
     <footer class="footer-bottom">
     </footer>
     <script>
-      const email = localStorage.getItem('userEmail');
-      if(!email){ window.location.href = 'login_mentee.html'; }
+      const currentUserEmail = localStorage.getItem('userEmail');
+      const currentUserRole = localStorage.getItem('userRole');
+      if(!currentUserEmail){ window.location.href = 'login_mentee.html'; }
+      let selectedEmail = currentUserEmail; // default for mentee
+      const isMentor = currentUserRole === 'mentor';
+
+      // If mentor, show mentees card and hide forms (read-only view)
+      if (isMentor) {
+        document.getElementById('menteesCard').style.display = 'block';
+        document.getElementById('academicForm').style.display = 'none';
+        document.getElementById('pdForm').style.display = 'none';
+      }
       function tr(id, subject, marks, total, pct){
         const clsScore = pct < 75 ? 'low-score' : '';
         const clsAtt = pct < 75 ? 'low-attendance' : '';
@@ -289,29 +306,60 @@
             </td>
           </tr>`;
       }
-      (async function(){
-        try{
-          const res = await fetch(`/api/progress/${encodeURIComponent(email)}`);
+      async function renderProgress(emailToLoad){
+        try {
+          const res = await fetch(`/api/progress/${encodeURIComponent(emailToLoad)}`);
           const json = await res.json();
           if(!json.success) return;
           const p = json.progress;
+          // Table + diary
           document.getElementById('academicBody').innerHTML = (p.academicProgress||[])
             .map(x=>tr(x._id, x.subject, x.marks, x.totalMarks, x.percentage)).join('');
           document.getElementById('pdList').innerHTML = (p.personalDevelopment||[]).map(g=>{
             const color = g.status === 'completed' ? 'green' : (g.status === 'pending' ? 'grey' : 'green');
+            const actionButtons = isMentor ? '' : `<button class="edit-pd" style="background:#6a5acd;color:#fff;border:none;padding:6px 10px;border-radius:6px;cursor:pointer;">Edit</button>
+              <button class="del-pd" style="background:#b22222;color:#fff;border:none;padding:6px 10px;border-radius:6px;cursor:pointer;">Delete</button>`;
             return `<li data-id="${g._id}" style="display:flex;align-items:center;gap:8px;margin:6px 0;">
               <span class="status-indicator ${color}"></span>
               <span class="pd-text">${g.goal}</span>
               <span style="flex:1 1 auto;"></span>
-              <button class="edit-pd" style="background:#6a5acd;color:#fff;border:none;padding:6px 10px;border-radius:6px;cursor:pointer;">Edit</button>
-              <button class="del-pd" style="background:#b22222;color:#fff;border:none;padding:6px 10px;border-radius:6px;cursor:pointer;">Delete</button>
+              ${actionButtons}
             </li>`;
           }).join('');
-        }catch(e){ console.error(e); }
-      })();
+        } catch(e){ console.error(e); }
+      }
 
-      // Handle academic add
-      document.getElementById('academicForm').addEventListener('submit', async (e)=>{
+      // Initial load (mentee sees own progress; mentor waits for selection)
+      if (!isMentor) {
+        renderProgress(selectedEmail);
+      } else {
+        // load mentee list
+        (async function(){
+          try{
+            const r = await fetch(`/api/mentees/${encodeURIComponent(currentUserEmail)}`);
+            const j = await r.json();
+            if(!j.success) return;
+            const list = document.getElementById('menteeList');
+            list.innerHTML = j.mentees.map(m => `
+              <li>
+                <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                  <input type="radio" name="menteeSel" value="${m.email}">
+                  <span>${m.name} <small style=\"color:#666\">(${m.email})</small></span>
+                </label>
+              </li>`).join('');
+          }catch(err){ console.error(err); }
+        })();
+
+        document.getElementById('loadProgressBtn').addEventListener('click', ()=>{
+          const sel = document.querySelector('input[name="menteeSel"]:checked');
+          if(!sel){ alert('Please select a mentee'); return; }
+          selectedEmail = sel.value;
+          renderProgress(selectedEmail);
+        });
+      }
+
+      // Handle academic add (mentees only)
+      if (!isMentor) document.getElementById('academicForm').addEventListener('submit', async (e)=>{
         e.preventDefault();
         const payload = {
           subject: document.getElementById('ac_subject').value,
@@ -320,7 +368,7 @@
           percentage: Number(document.getElementById('ac_att').value),
           semester: document.getElementById('ac_sem').value
         };
-        const res = await fetch(`/api/progress/${encodeURIComponent(email)}/academic`, {
+        const res = await fetch(`/api/progress/${encodeURIComponent(selectedEmail)}/academic`, {
           method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)
         });
         const data = await res.json();
@@ -332,11 +380,11 @@
         } else { alert(data.message || 'Failed to add'); }
       });
 
-      // Handle personal diary add
-      document.getElementById('pdForm').addEventListener('submit', async (e)=>{
+      // Handle personal diary add (mentees only)
+      if (!isMentor) document.getElementById('pdForm').addEventListener('submit', async (e)=>{
         e.preventDefault();
         const payload = { goal: document.getElementById('pd_goal').value, description: document.getElementById('pd_desc').value };
-        const res = await fetch(`/api/progress/${encodeURIComponent(email)}/personal`, {
+        const res = await fetch(`/api/progress/${encodeURIComponent(selectedEmail)}/personal`, {
           method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)
         });
         const data = await res.json();
@@ -355,12 +403,14 @@
       });
 
       // Event delegation: academic edit/delete
+      // Academic edit/delete (mentees only)
       document.getElementById('academicBody').addEventListener('click', async (e) => {
+        if (isMentor) return; 
         const trEl = e.target.closest('tr');
         if (!trEl) return;
         const id = trEl.getAttribute('data-id');
         if (e.target.classList.contains('del-ac')) {
-          const res = await fetch(`/api/progress/${encodeURIComponent(email)}/academic/${id}`, { method:'DELETE' });
+          const res = await fetch(`/api/progress/${encodeURIComponent(selectedEmail)}/academic/${id}`, { method:'DELETE' });
           const data = await res.json();
           if (data.success) trEl.remove(); else alert(data.message||'Delete failed');
         } else if (e.target.classList.contains('edit-ac')) {
@@ -374,7 +424,7 @@
           if (Number.isNaN(totalMarks)) return alert('Invalid total');
           const attendance = Number(prompt('Attendance %', currentTds[2].textContent.trim().replace('%','')));
           if (Number.isNaN(attendance)) return alert('Invalid attendance');
-          const res = await fetch(`/api/progress/${encodeURIComponent(email)}/academic/${id}`, {
+          const res = await fetch(`/api/progress/${encodeURIComponent(selectedEmail)}/academic/${id}`, {
             method:'PATCH', headers:{'Content-Type':'application/json'},
             body: JSON.stringify({ subject, marks, totalMarks, percentage: attendance })
           });
@@ -386,19 +436,21 @@
       });
 
       // Event delegation: personal dev edit/delete
+      // Diary edit/delete (mentees only)
       document.getElementById('pdList').addEventListener('click', async (e) => {
+        if (isMentor) return; 
         const li = e.target.closest('li[data-id]');
         if (!li) return;
         const id = li.getAttribute('data-id');
         if (e.target.classList.contains('del-pd')) {
-          const res = await fetch(`/api/progress/${encodeURIComponent(email)}/personal/${id}`, { method:'DELETE' });
+          const res = await fetch(`/api/progress/${encodeURIComponent(selectedEmail)}/personal/${id}`, { method:'DELETE' });
           const data = await res.json();
           if (data.success) li.remove(); else alert(data.message||'Delete failed');
         } else if (e.target.classList.contains('edit-pd')) {
           const current = li.querySelector('.pd-text').textContent.trim();
           const goal = prompt('Task', current);
           if (goal===null) return;
-          const res = await fetch(`/api/progress/${encodeURIComponent(email)}/personal/${id}`, {
+          const res = await fetch(`/api/progress/${encodeURIComponent(selectedEmail)}/personal/${id}`, {
             method:'PATCH', headers:{'Content-Type':'application/json'},
             body: JSON.stringify({ goal })
           });

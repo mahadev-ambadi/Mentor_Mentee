@@ -189,7 +189,7 @@
     </div>
     <button type="submit" class="login-button">Login</button>
     <div class="forgot-password">
-      <a href="#">Forgot Password?</a>
+      <a href="#" id="forgotPwdLink">Forgot Password?</a>
     </div>
   </form>
 
@@ -267,6 +267,23 @@
       console.error("Signup error:", err);
     }
   });
+  </script>
+  <script>
+    // Forgot password handler (demo): prompts email and calls API, shows temp password
+    document.getElementById('forgotPwdLink').addEventListener('click', async (e)=>{
+      e.preventDefault();
+      const email = prompt('Enter your registered email');
+      if(!email) return;
+      try{
+        const r = await fetch('/api/forgot-password', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ email, role: 'mentee' }) });
+        const j = await r.json();
+        if(j.success){
+          alert(`Temporary password: ${j.tempPassword}\nPlease login and change it immediately.`);
+        } else {
+          alert(j.message || 'Failed to reset password');
+        }
+      }catch(err){ alert('Error requesting password reset'); console.error(err); }
+    });
   </script>
 
 </body>
